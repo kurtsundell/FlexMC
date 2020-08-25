@@ -295,7 +295,7 @@ switch rad_EET
         Te_low = Te_min + (Te_max-Te_min).*Te_rand; %generate random values for effective elastic thickness (m)
         D = (E*Te_low.*Te_low.*Te_low)/(12*(1-v.*v)); %calculate flexural rigidity (D) from random values above (Nm) (Turcotte and Schubert, 2014)
         Alpha_left=transpose((4*D./(delta_rho.*g)).^.25); %calculate flexural parameter (alpha) from random values above (m) (Turcotte and Schubert, 2014)
-        Alpha=repmat(Alpha_left, size(x_dim), 1);
+        Alpha=repmat(Alpha_left, length(x_dim), 1);
         complete=1
         EET_grad='Constant';
         exp_max=NaN([1 1]);

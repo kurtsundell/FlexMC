@@ -1268,7 +1268,7 @@ end
 
 if min(Te_plotting)==max(Te_plotting)
     axis([str2num(get(handles.plot_opt_xmin,'String')), str2num(get(handles.plot_opt_xmax,'String')),...
-        floor(min(Te_plotting-1000)), ceil(max(Te_plotting+1000))])
+        floor(min(min(Te_plotting-1000))), ceil(max(max(Te_plotting+1000)))])
 else
     axis([str2num(get(handles.plot_opt_xmin,'String')), str2num(get(handles.plot_opt_xmax,'String')),...
         floor(min(min(Te_plotting))), ceil(max(max(Te_plotting)))])
@@ -1425,11 +1425,14 @@ handles.subuncertainty5=subuncertainty5;
 handles.exp_minval=exp_min;
 handles.exp_maxval=exp_max;
 handles.filtered_exponent=filtered_exponent;
-handles.xfilt_subsidence_loc=xfilt_subsidence_loc;
-handles.xfilt_subsidence_loc2=xfilt_subsidence_loc2;
-handles.xfilt_subsidence_loc3=xfilt_subsidence_loc3;
-handles.xfilt_subsidence_loc4=xfilt_subsidence_loc4;
-handles.xfilt_subsidence_loc5=xfilt_subsidence_loc5;
+switch uncert_orientation
+	case handles.Uncert_vert
+    handles.xfilt_subsidence_loc=xfilt_subsidence_loc;
+    handles.xfilt_subsidence_loc2=xfilt_subsidence_loc2;
+    handles.xfilt_subsidence_loc3=xfilt_subsidence_loc3;
+    handles.xfilt_subsidence_loc4=xfilt_subsidence_loc4;
+    handles.xfilt_subsidence_loc5=xfilt_subsidence_loc5;
+end
 %{
 if(isnan(subsidence2))==0
     handles.xfilt_subsidence_loc2=xfilt_subsidence_loc2;
@@ -1960,7 +1963,7 @@ end
 hold off
 if min(Te_plotting)==max(Te_plotting)
     axis([str2num(get(handles.plot_opt_xmin,'String')), str2num(get(handles.plot_opt_xmax,'String')),...
-        floor(min(Te_plotting-1000)), ceil(max(Te_plotting+1000))])
+        floor(min(min(Te_plotting-1000))), ceil(max(max(Te_plotting+1000)))])
 else
     axis([str2num(get(handles.plot_opt_xmin,'String')), str2num(get(handles.plot_opt_xmax,'String')),...
         floor(min(min(Te_plotting))), ceil(max(max(Te_plotting)))])
@@ -2317,6 +2320,13 @@ ind_max=Te(:,1)-max(Te(:,1));
 EET_max=num2cell(transpose(Te(find(~ind_max),:)));
 x_dim=num2cell(x_dim);
 
+%Trim min and max if longer than (x,1)
+if size(EET_min,2)>1
+    EET_min= EET_min(:,1);
+end
+if size(EET_max,2)>1
+    EET_max= EET_max(:,1);
+end
 EET_out(2:end,1)=x_dim;
 EET_out(2:end,2)=EET_mean;
 EET_out(2:end,3)=EET_min;
@@ -2349,16 +2359,16 @@ filtered_block_width = handles.filtered_block_width;
 filtered_h_all = handles.filtered_h_all;
 numblocks = handles.numblocks;
 
-loads_out = zeros(numblocks*2+3,Model_fits);
+loads_out = zeros(numblocks*2+6,Model_fits);
 
 loads_out(2:numblocks+1,:) = transpose(filtered_xc);
 loads_out(numblocks+4,:) = transpose(filtered_block_width);
-loads_out(2*numblocks+2:2*numblocks+6,:) = transpose(filtered_h_all)
-loads_out = cellfun(@(x)x(logical(x)),num2cell(loads_out),'uni',false) %cell with empties where zeros were
+loads_out(numblocks+7:end,:) = transpose(filtered_h_all)
 
+loads_out = cellfun(@(x)x(logical(x)),num2cell(loads_out),'uni',false) %cell with empties where zeros were
 loads_out(1,1) = cellstr('Load centers (m)')
 loads_out(numblocks+3,1) = cellstr('Load widths (m)')
-loads_out(2*numblocks+1,1) = cellstr('Load heights (m)')
+loads_out(numblocks+6,1) = cellstr('Load heights (m)')
 
 
 [file,path] = uiputfile('*.xlsx','Save file');
